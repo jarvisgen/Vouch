@@ -1,0 +1,18 @@
+[package]
+name = "vouch"
+edition = "2024.beta"
+version = "0.0.1"
+
+[dependencies]
+# Sui framework + MoveStdlib are auto-added by the CLI, matched to the installed
+# binary (currently testnet v1.73.1) — more reproducible than pinning a git rev.
+# DeepBook v3 — the CLOB the markets trade on — is re-added in the market step
+# (step 3, market.move), kept out now so registry/insurance build without fetching it:
+# DeepBook = { git = "https://github.com/MystenLabs/deepbookv3.git", subdir = "packages/deepbook", rev = "<verified-testnet-rev>" }
+
+[addresses]
+vouch = "0x0"
+
+[dev-dependencies]
+
+[dev-addresses]
