@@ -7,7 +7,7 @@ services:
     plan: free
     region: oregon
     rootDir: .
-    buildCommand: corepack enable && pnpm install --no-frozen-lockfile
+    buildCommand: pnpm install --no-frozen-lockfile
     startCommand: pnpm --filter @vouch/agents serve
     numInstances: 1 # MUST be 1 — multiple instances signing with one wallet = gas-coin equivocation
     envVars:
