@@ -1,0 +1,74 @@
+{
+  "network": "testnet",
+  "publishedAt": "2026-06-17",
+  "admin": "0xd6ffb114126c42a41937af6072e1ebfd605aa693eb8a274f738debf9b808278a",
+  "packageId": "0x9a346250e43b40729748c2819fe6ee1497f9addac1584293b24c7ac05172fbb6",
+  "agentRegistryId": "0xbe5dd6b7ada9ed044be961cfe53083fbe37313444166e4a70edc367481b057d3",
+  "adminCapId": "0xe5e0c24cb1fc9969b577be81d4592ce0af45d641c9093be9206704934343cb9f",
+  "upgradeCapId": "0x819b59bc4b1ed357207af5b2546f3be698af1d688cdc36aa3b5cbafd4e310e7b",
+  "stablecoin": {
+    "type": "0x9a346250e43b40729748c2819fe6ee1497f9addac1584293b24c7ac05172fbb6::mock_usdc::MOCK_USDC",
+    "treasuryCapId": "0x2a360c4bd24feb96d5bd75609fdad96d8c1d38330c14875bf03dec80439afb06",
+    "decimals": 6
+  },
+  "reservePoolId": "0x1bdc87df990f9fd87d958f9fab07c4b4676850d41bb8a977ab8d5a3979eae456",
+  "taskClasses": {
+    "clause": {
+      "agentId": "0x49304af64d66dc618e9e3a5582a3c17d751ca6fd7e0e6212ea063f90dbe3434a",
+      "marketId": "0x5b12c3992780758293ab6d6cb02a7b841d6dcf54098b9837a1436a8a98d930a6",
+      "poolId": "0xb7ef81d97bd543cb3de1a18974104515bfda1a50b4ea849fa6d0825b6fc7b2cc",
+      "yesType": "0x9a346250e43b40729748c2819fe6ee1497f9addac1584293b24c7ac05172fbb6::yes_clause::YES_CLAUSE",
+      "noType": "0x9a346250e43b40729748c2819fe6ee1497f9addac1584293b24c7ac05172fbb6::no_clause::NO_CLAUSE",
+      "yesTreasuryCapId": "0x6374dda9f3c3c5fb9249c82419f02699b0413902c9b075c57bcc519e2933a67f",
+      "noTreasuryCapId": "0xa571996d7241e5c448faef5bd63dc25c43e683894c579ccead98c1f52978823e"
+    },
+    "invoice": {
+      "agentId": "0xc4dc3e83086e36db4827e35fad22bfc391a183c7a7b31c2fa22107ed9eae51c1",
+      "marketId": "0x9026a5109cbed47c1b91e6d7474676884944a125166e9514b2b2c45cd92f1f62",
+      "poolId": "0x8f9afca99fcb43a98f619d4ea1d72f9a7899a7074e01064b1bab8a1bca485fc7",
+      "yesType": "0x9a346250e43b40729748c2819fe6ee1497f9addac1584293b24c7ac05172fbb6::yes_invoice::YES_INVOICE",
+      "noType": "0x9a346250e43b40729748c2819fe6ee1497f9addac1584293b24c7ac05172fbb6::no_invoice::NO_INVOICE",
+      "yesTreasuryCapId": "0xe7ff14c0693ca4ecf8ddb06dda17df336b000a928ae981a61a16ec852c4c05c3",
+      "noTreasuryCapId": "0x9db85c80b68a306a6b44b5cc5337ea2009b5a7983ea009f359ff25a7a02d886a"
+    },
+    "citation": {
+      "agentId": "0xfed5a226ecf4fddebeaaf9008eb0bcb100c33ca5666826ceb956e7bff2ce9bdc",
+      "marketId": "0xd69fbb36c01b2b171ec73fbd1eb5f5edf4b5baf8dbf4f081086725bc4596f851",
+      "poolId": "0x30688ce75e3591e6023a4eaa5a92487cd8edb1aab029ee36a0ea88a7e531f660",
+      "yesType": "0x9a346250e43b40729748c2819fe6ee1497f9addac1584293b24c7ac05172fbb6::yes_citation::YES_CITATION",
+      "noType": "0x9a346250e43b40729748c2819fe6ee1497f9addac1584293b24c7ac05172fbb6::no_citation::NO_CITATION",
+      "yesTreasuryCapId": "0xd9953dc26e277056264dcbc2408633f52e38a38bb7e59a19a40c5ab21462b14f",
+      "noTreasuryCapId": "0xb9824efe864c4751b3c0551592eb18b7605a2cfd7a13b1005fc533432ca5741e"
+    },
+    "token-brief": {
+      "poolId": "0x943929cf4d643ef8127c34f812a4bda4e8dcb0463c06b6f1a810fa85986a7e99",
+      "yesType": "0x9a346250e43b40729748c2819fe6ee1497f9addac1584293b24c7ac05172fbb6::no_clause::NO_CLAUSE",
+      "noType": "0x9a346250e43b40729748c2819fe6ee1497f9addac1584293b24c7ac05172fbb6::yes_clause::YES_CLAUSE",
+      "marketId": "0x5b12c3992780758293ab6d6cb02a7b841d6dcf54098b9837a1436a8a98d930a6",
+      "yesTreasuryCapId": "0xa571996d7241e5c448faef5bd63dc25c43e683894c579ccead98c1f52978823e",
+      "noTreasuryCapId": "0x6374dda9f3c3c5fb9249c82419f02699b0413902c9b075c57bcc519e2933a67f"
+    },
+    "wallet-report": {
+      "poolId": "0xca4a9d61add081e8cfd3fbc41ccec3cbb62c46c2bcc4a453e781dbf23313cbc1",
+      "yesType": "0x9a346250e43b40729748c2819fe6ee1497f9addac1584293b24c7ac05172fbb6::no_invoice::NO_INVOICE",
+      "noType": "0x9a346250e43b40729748c2819fe6ee1497f9addac1584293b24c7ac05172fbb6::yes_invoice::YES_INVOICE",
+      "marketId": "0x9026a5109cbed47c1b91e6d7474676884944a125166e9514b2b2c45cd92f1f62",
+      "yesTreasuryCapId": "0x9db85c80b68a306a6b44b5cc5337ea2009b5a7983ea009f359ff25a7a02d886a",
+      "noTreasuryCapId": "0xe7ff14c0693ca4ecf8ddb06dda17df336b000a928ae981a61a16ec852c4c05c3"
+    },
+    "defi-health": {
+      "poolId": "0xd8a673d91c8ec2eaf1962583cd5d173ea0aaae551621fdbd35bc6a45a53d6d9c",
+      "yesType": "0x9a346250e43b40729748c2819fe6ee1497f9addac1584293b24c7ac05172fbb6::no_citation::NO_CITATION",
+      "noType": "0x9a346250e43b40729748c2819fe6ee1497f9addac1584293b24c7ac05172fbb6::yes_citation::YES_CITATION",
+      "marketId": "0xd69fbb36c01b2b171ec73fbd1eb5f5edf4b5baf8dbf4f081086725bc4596f851",
+      "yesTreasuryCapId": "0xb9824efe864c4751b3c0551592eb18b7605a2cfd7a13b1005fc533432ca5741e",
+      "noTreasuryCapId": "0xd9953dc26e277056264dcbc2408633f52e38a38bb7e59a19a40c5ab21462b14f"
+    }
+  },
+  "auditor": {
+    "agentId": "0xe4bb19e678d7ee58b67c605a111ca87a98d4b76b7b63bb3fdf3af369cf9c5213",
+    "operator": "0xd6ffb114126c42a41937af6072e1ebfd605aa693eb8a274f738debf9b808278a"
+  },
+  "usdcCoinId": "0xd4dbb764d6918e674ab7ff64c1ffdf982c8a106e6f26ca843d61e7721333aca0",
+  "balanceManagerId": "0x142bfb506bc04067c129942a30d0be0c8754fee90e36641209e71918d787f6d4"
+}
