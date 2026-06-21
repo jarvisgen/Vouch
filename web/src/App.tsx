@@ -41,7 +41,13 @@ export default function App() {
   const refreshMarket = (tc: string) => api.market(tc).then(setMarket).catch(() => {});
 
   useEffect(() => {
-    api.health().then(setHealth).catch(() => setErr("Backend not reachable on :8787 — start it with `pnpm agents`."));
+    api.health().then(setHealth).catch(() =>
+      setErr(
+        /^(localhost|127\.0\.0\.1)$/.test(location.hostname)
+          ? "Backend not reachable on :8787 — start it with `pnpm agents`."
+          : "Backend waking up (free tier cold start ~30–50s) — retry in a moment.",
+      ),
+    );
     api.tasks().then(setTaskMeta).catch(() => {});
     refreshAgents();
     refreshActivity();
