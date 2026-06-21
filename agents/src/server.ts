@@ -27,7 +27,7 @@ async function callExternalAgent(url: string, taskClass: string, input: string) 
     if (!r.ok) throw new Error(`agent endpoint ${r.status}: ${(await r.text()).slice(0, 200)}`);
     const text = (await r.text()).slice(0, 100_000); // cap response size
     const d: any = JSON.parse(text);
-    return { result: d.result, trace: `internal worker @ ${origin}`, mode: d.mode || "external" };
+    return { result: d.result, trace: `internal worker @ ${u.origin}`, mode: d.mode || "external" };
   } finally { clearTimeout(timer); }
 }
 
