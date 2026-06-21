@@ -1,0 +1,27 @@
+node_modules/
+dist/
+build/
+.env
+.env.local
+*.log
+
+# Move
+move/build/
+
+# generated deployment ids (keep the template, ignore real outputs)
+deployments/*.json
+!deployments/testnet.example.json
+
+# misc
+.DS_Store
+.vite/
+vouch-walkthrough.mp4
+.demo/
+test-results/
+
+# local tooling
+.claude/
+
+# video demo assets (kept local)
+DEMO_SCRIPT.md
+scripts/demo-record.ts

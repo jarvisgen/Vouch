@@ -1,0 +1,28 @@
+{
+  "name": "vouch",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Vouch — a tradable trust layer for the AI-agent economy (Sui Overflow 2026)",
+  "packageManager": "pnpm@9.0.0",
+  "scripts": {
+    "publish": "tsx scripts/publish.ts",
+    "make-market": "pnpm --filter @vouch/agents make-market",
+    "seed": "tsx scripts/seed.ts",
+    "demo": "tsx scripts/demo.ts",
+    "agents": "pnpm --filter @vouch/agents start",
+    "web": "pnpm --filter @vouch/web dev",
+    "move:build": "sui move build --path move",
+    "move:test": "sui move test --path move"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-basic-ssl": "^2.3.0",
+    "ffmpeg-static": "^5.3.0",
+    "playwright": "^1.61.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.5.0"
+  },
+  "dependencies": {
+    "@mysten/sui": "^1.18.0",
+    "dotenv": "^16.4.0"
+  }
+}

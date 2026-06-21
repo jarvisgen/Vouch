@@ -1,0 +1,13 @@
+{
+  "network": "testnet",
+  "packageId": "0x0",
+  "agentRegistryId": "0x0",
+  "reservePoolId": "0x0",
+  "usdcCoinType": "0x0::usdc::USDC",
+  "deepbookPackageId": "0x0",
+  "taskClasses": {
+    "clause": { "yesCoinType": "0x0::yes_clause::YES_CLAUSE", "poolId": "0x0" },
+    "invoice": { "yesCoinType": "0x0::yes_invoice::YES_INVOICE", "poolId": "0x0" },
+    "citation": { "yesCoinType": "0x0::yes_citation::YES_CITATION", "poolId": "0x0" }
+  }
+}
