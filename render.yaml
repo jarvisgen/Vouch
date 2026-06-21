@@ -7,8 +7,9 @@ services:
     plan: free
     region: oregon
     rootDir: .
-    buildCommand: pnpm install --no-frozen-lockfile
-    startCommand: pnpm --filter @vouch/agents serve
+    # Use pnpm via npx (writable cache) so no corepack shim is written to read-only /usr/bin.
+    buildCommand: npx --yes pnpm@9 install --no-frozen-lockfile
+    startCommand: npx --yes pnpm@9 --filter @vouch/agents serve
     numInstances: 1 # MUST be 1 — multiple instances signing with one wallet = gas-coin equivocation
     envVars:
       - key: SUI_MNEMONIC # secret — set in the Render dashboard

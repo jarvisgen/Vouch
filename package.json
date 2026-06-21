@@ -3,7 +3,6 @@
   "version": "0.0.1",
   "private": true,
   "description": "Vouch — a tradable trust layer for the AI-agent economy (Sui Overflow 2026)",
-  "packageManager": "pnpm@9.0.0",
   "scripts": {
     "publish": "tsx scripts/publish.ts",
     "make-market": "pnpm --filter @vouch/agents make-market",
