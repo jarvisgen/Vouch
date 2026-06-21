@@ -25,3 +25,4 @@ test-results/
 # video demo assets (kept local)
 DEMO_SCRIPT.md
 scripts/demo-record.ts
+*.tsbuildinfo
