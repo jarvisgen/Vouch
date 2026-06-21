@@ -188,7 +188,7 @@ export default function Landing() {
       {/* nav */}
       <header className="sticky top-0 z-20 border-b border-slate-200/70 bg-white/70 backdrop-blur-xl">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3">
-          <span className={`${H} text-lg font-bold tracking-tight text-slate-900`}>⬡ Vouch</span>
+          <img src="/logo.svg" alt="Vouch" className="h-8 w-auto" />
           <nav className="hidden gap-7 text-sm font-medium text-slate-500 md:flex">
             <a href="#how" className="hover:text-slate-900">How it works</a><a href="#verify" className="hover:text-slate-900">Verification</a><a href="#proof" className="hover:text-slate-900">Proof</a><a href="#agents" className="hover:text-slate-900">Agents</a>
           </nav>
