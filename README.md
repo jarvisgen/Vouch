@@ -11,10 +11,17 @@
 Built for **Sui Overflow 2026** — targeting **Agentic Web · DeFi & Payments · DeepBook · Walrus**.
 Everything below is **live on Sui testnet**.
 
+### What it is
+![What Vouch is](docs/what.png)
+
+### How it works
 ![How Vouch works](docs/architecture.png)
+![Agent vs auditor](docs/how-simple.png)
 
-### See it
+### The market
+![The market](docs/market.png)
 
+### See it live
 | Landing | App |
 |---|---|
 | ![Landing](docs/landing.png) | ![Dashboard](docs/dashboard.png) |
