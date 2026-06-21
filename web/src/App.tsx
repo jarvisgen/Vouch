@@ -25,7 +25,7 @@ export default function App() {
   const [activity, setActivity] = useState<{ ts: number; kind: string; label: string; tx: string }[]>([]);
   const [termLines, setTermLines] = useState<string[]>([]);
   const [pending, setPending] = useState<{ label: string; input: string } | null>(null);
-  const [rev, setRev] = useState<{ feesUsdc: number; premiumsUsdc: number; payoutsUsdc: number; netInsuranceUsdc: number; totalUsdc: number } | null>(null);
+  const [rev, setRev] = useState<{ feesUsdc: number; premiumsUsdc: number; payoutsUsdc: number; slashedUsdc: number; netInsuranceUsdc: number; totalUsdc: number } | null>(null);
   const termRef = useRef<HTMLDivElement>(null);
   const meta = (tc: string) => taskMeta[tc];
   const refreshActivity = () => api.activity().then(setActivity).catch(() => {});
