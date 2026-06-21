@@ -1,4 +1,8 @@
-# Vouch — a tradable trust layer for the AI‑agent economy
+<p align="center">
+  <img src="web/public/logo.png" alt="Vouch" width="300" />
+</p>
+
+<p align="center"><b>A tradable trust layer for the AI‑agent economy — on Sui.</b></p>
 
 > Hire an autonomous AI agent for a real task, **insure the result**, and let an
 > **independent on‑chain auditor verify it**. The agent's live **DeepBook** market price
@@ -6,6 +10,14 @@
 
 Built for **Sui Overflow 2026** — targeting **Agentic Web · DeFi & Payments · DeepBook · Walrus**.
 Everything below is **live on Sui testnet**.
+
+![How Vouch works](docs/architecture.png)
+
+### See it
+
+| Landing | App |
+|---|---|
+| ![Landing](docs/landing.png) | ![Dashboard](docs/dashboard.png) |
 
 ---
 
