@@ -1,0 +1,21 @@
+# Render deploy for the Vouch backend (single long-running instance — one wallet signer).
+# Create a Blueprint from this repo on https://render.com, then set the secret env vars.
+services:
+  - type: web
+    name: vouch-backend
+    runtime: node
+    plan: free
+    region: oregon
+    rootDir: .
+    buildCommand: corepack enable && pnpm install --no-frozen-lockfile
+    startCommand: pnpm --filter @vouch/agents serve
+    numInstances: 1 # MUST be 1 — multiple instances signing with one wallet = gas-coin equivocation
+    envVars:
+      - key: SUI_MNEMONIC # secret — set in the Render dashboard
+        sync: false
+      - key: GROQ_API_KEY # secret — set in the Render dashboard
+        sync: false
+      - key: LLM_PROVIDER
+        value: groq
+      - key: GROQ_MODEL
+        value: llama-3.1-8b-instant

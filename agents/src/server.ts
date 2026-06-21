@@ -9,13 +9,17 @@ import { putBundle, evidenceLink } from "./walrus.js";
 import { hire, resolve, leaderboard, readAgentById, createAgent, performanceReliability, marketView, repricePool, tradeOnPool, refuel, getActivity, getRevenue, ME } from "./chain.js";
 import { getConfig, setConfig, MODEL_CATALOG } from "./models.js";
 
-// Only our own internal worker origin(s) may be called — no user-supplied URLs reach fetch().
-// This blocks SSRF (cloud metadata / internal services) even for legacy endpoint configs.
-const WORKER_ORIGINS = (process.env.VOUCH_WORKER_ORIGINS ?? "http://localhost:8787").split(",").map((s) => s.trim());
+// Only our own internal worker may be called — no user-supplied URLs reach fetch() (SSRF guard).
+// Internal self-calls are pinned to THIS server's own port so they work on any host
+// (localhost in dev, $PORT on Render/Fly/etc.), regardless of what's stored in agent config.
+const EXTRA_ORIGINS = (process.env.VOUCH_WORKER_ORIGINS ?? "").split(",").map((s) => s.trim()).filter(Boolean);
 async function callExternalAgent(url: string, taskClass: string, input: string) {
-  let origin: string;
-  try { origin = new URL(url).origin; } catch { throw new Error("invalid worker url"); }
-  if (!WORKER_ORIGINS.includes(origin)) throw new Error(`worker origin not allowlisted: ${origin}`);
+  let u: URL;
+  try { u = new URL(url); } catch { throw new Error("invalid worker url"); }
+  if (u.hostname === "localhost" || u.hostname === "127.0.0.1") u.port = String(env.port); // pin to self
+  const allow = [`http://localhost:${env.port}`, `http://127.0.0.1:${env.port}`, ...EXTRA_ORIGINS];
+  if (!allow.includes(u.origin)) throw new Error(`worker origin not allowlisted: ${u.origin}`);
+  url = u.toString();
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), 20_000);
   try {
