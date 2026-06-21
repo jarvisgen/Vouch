@@ -1,16 +1,13 @@
-# Render deploy for the Vouch backend (single long-running instance — one wallet signer).
-# Create a Blueprint from this repo on https://render.com, then set the secret env vars.
+# Render deploy for the Vouch backend — Docker runtime (avoids Render's corepack/pnpm
+# provisioning, which fails with EROFS on the read-only /usr/bin). Single instance only.
 services:
   - type: web
     name: vouch-backend
-    runtime: node
+    runtime: docker
+    dockerfilePath: ./Dockerfile
     plan: free
     region: oregon
-    rootDir: .
-    # Use pnpm via npx (writable cache) so no corepack shim is written to read-only /usr/bin.
-    buildCommand: npx --yes pnpm@9 install --no-frozen-lockfile
-    startCommand: npx --yes pnpm@9 --filter @vouch/agents serve
-    numInstances: 1 # MUST be 1 — multiple instances signing with one wallet = gas-coin equivocation
+    numInstances: 1 # one wallet signer — multiple instances would equivocate the gas coin
     envVars:
       - key: SUI_MNEMONIC # secret — set in the Render dashboard
         sync: false

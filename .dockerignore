@@ -1,0 +1,10 @@
+**/node_modules
+.git
+.github
+**/dist
+web/dist
+.demo
+*.log
+*.mp4
+.env
+.env.local
