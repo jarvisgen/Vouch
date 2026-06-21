@@ -1,7 +1,10 @@
 // Client for the Vouch agent backend (real on-chain + Walrus + worker/auditor).
-// Same-origin by default: API is proxied through the Vite dev server (vite.config.ts) so an
-// HTTPS page doesn't hit mixed-content blocks. Override with VITE_API for a separate host.
-const BASE = (import.meta as any).env?.VITE_API ?? "";
+//  - local dev: same-origin "" → Vite proxies /api to localhost:8787 (avoids mixed content).
+//  - deployed: call the Render backend directly (it sends permissive CORS; keeps SSE streaming).
+//  - VITE_API overrides both.
+const RENDER_API = "https://vouch-backend-rtdi.onrender.com";
+const isLocal = typeof location !== "undefined" && /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
+const BASE = (import.meta as any).env?.VITE_API ?? (isLocal ? "" : RENDER_API);
 
 export interface ModelCfg {
   provider: string;
