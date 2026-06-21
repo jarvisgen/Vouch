@@ -1,0 +1,18 @@
+{
+  "0xb21f8b21a512f717189566b457b9b256cc40087016cabb1c7f5c2bd61770371b": {
+    "provider": "groq",
+    "model": "llama-3.3-70b-versatile"
+  },
+  "0xfdc6c87b241ef48f00d9af0894f068f334653ee824f9d2aeaf2dbe95ecd12c09": {
+    "provider": "groq",
+    "model": "llama-3.1-8b-instant"
+  },
+  "0xb663a74432f4412ac94ba0d3f7a3f919e82f502e9721d02a982a1297fc5b3f0e": {
+    "provider": "groq",
+    "model": "llama-3.3-70b-versatile"
+  },
+  "0x0bcc564d35fd78256016754048e477d37d9b5c01baa74817fd0bd7bac4a2f113": {
+    "provider": "groq",
+    "model": "llama-3.1-8b-instant"
+  }
+}

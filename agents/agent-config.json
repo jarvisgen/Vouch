@@ -1,0 +1,44 @@
+{
+  "0xba1fd838d2b01915d919751e11739b1f97a22b5f3d54e5cc602c996599501169": {
+    "endpoint": "http://localhost:8787/agent?provider=groq&model=llama-3.3-70b-versatile",
+    "feeUsdc": 12
+  },
+  "0x56f4e8ca5f585b916aa8d8aa34957f00a7e022d55848e4fe2a16af55bb6c5a43": {
+    "endpoint": "http://localhost:8787/agent?provider=groq&model=llama-3.3-70b-versatile"
+  },
+  "0x63a5eb6e915c33628b95626c13bfaf2e54cf67043d21afef5a3731c3915689b5": {
+    "endpoint": "http://localhost:8787/agent?provider=groq&model=llama-3.3-70b-versatile"
+  },
+  "0x1f60a7eb63a06bd34a6fbd32c2dbd32badd033f5aa0b52695e1d526dcdd600d1": {
+    "endpoint": "http://localhost:8787/agent-naive"
+  },
+  "0x705c50867a908eb5b2ae8c91075e264e1c343e973a954c36c0c9ecf0b99466ac": {
+    "endpoint": "http://localhost:8787/agent?provider=groq&model=llama-3.1-8b-instant",
+    "feeUsdc": 3
+  },
+  "0x9c9f3d3410f6b2de0bc346229e311d06532bdcfca208e5d9401c4e7c84a48bab": {
+    "provider": "groq",
+    "model": "llama-3.3-70b-versatile",
+    "feeUsdc": 2
+  },
+  "0x4aa31a416139bb0cca6370e8d2b0ea3639fe70544cdb71ae9d5359d779f4b3cd": {
+    "provider": "groq",
+    "model": "llama-3.1-8b-instant",
+    "feeUsdc": 2
+  },
+  "0x603e16fe483f86d019f8591a22fb045fe66ae56d4c57d1237a33fae875a2b736": {
+    "provider": "groq",
+    "model": "llama-3.1-8b-instant",
+    "feeUsdc": 4
+  },
+  "0xce18f96b55fca151c576b9a61f0da7682c637931356aae01ec878f9b08a5c2b6": {
+    "provider": "groq",
+    "model": "llama-3.3-70b-versatile",
+    "feeUsdc": 6
+  },
+  "0x0d59b218236c25c7533d404e25ec3545ccf4d9baa738f9fe2f11a267b7959114": {
+    "provider": "groq",
+    "model": "llama-3.3-70b-versatile",
+    "feeUsdc": 3
+  }
+}
