@@ -134,6 +134,20 @@ deployments/testnet.json   live object ids
 
 ---
 
+## Deploy
+
+**Backend → Render (free).** One‑click Blueprint (reads `render.yaml`):
+
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/jarvisgen/Vouch)
+
+1. Click the button → authorize GitHub → Render creates the `vouch-backend` web service (free, single instance).
+2. Set the two **secret** env vars in the Render dashboard: `SUI_MNEMONIC`, `GROQ_API_KEY`.
+3. Deploy → you get `https://vouch-backend.onrender.com`; check `…/api/health`.
+   *(Free tier sleeps after ~15 min idle — hit `/api/health` once to warm it before a demo.)*
+
+**Frontend → Vercel.** Uses the root `vercel.json` (builds `web` → `web/dist`). Set one env var:
+- `VITE_API` = your Render backend URL (e.g. `https://vouch-backend.onrender.com`), then redeploy.
+
 ## Setup
 
 ```bash
