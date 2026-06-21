@@ -2,6 +2,7 @@
 # runs its own corepack against the read-only /usr/bin (the source of the EROFS error).
 FROM node:20-slim
 WORKDIR /app
+ENV CI=true
 
 # pnpm via npm (writable global prefix in the image)
 RUN npm install -g pnpm@9
