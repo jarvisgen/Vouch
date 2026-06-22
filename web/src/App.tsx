@@ -93,6 +93,7 @@ export default function App() {
     const coverage = guarantee ? agentCut : 0n;
     const premium = guarantee ? BigInt(Math.round(Number(coverage) * (1 - selected.reliabilityBps / 10000) * 1.2)) : 0n;
     const tx = new Transaction();
+    tx.setSender(account.address); // required so coinWithBalance can resolve the wallet's coins
     tx.transferObjects([coinWithBalance({ type: health.stable, balance: protocolCut })], health.treasury); // platform fee
     tx.transferObjects([coinWithBalance({ type: health.stable, balance: agentCut })], health.backend); // escrow
     tx.moveCall({
