@@ -107,6 +107,11 @@ export default function App() {
         coinWithBalance({ type: health.stable, balance: premium }),
       ],
     });
+    const total = Number(protocolCut + agentCut + premium) / 1e6;
+    setTermLines((l) => [...l, `HIRE  approve ~$${total.toFixed(2)} mUSDC in your wallet:`,
+      `        • $${(Number(agentCut) / 1e6).toFixed(2)} agent fee (escrowed — refunded if it fails)`,
+      ...(premium > 0n ? [`        • $${(Number(premium) / 1e6).toFixed(2)} insurance premium`] : []),
+      `        • $${(Number(protocolCut) / 1e6).toFixed(2)} platform fee`]);
     const signed = await signTx({ transaction: tx as any }); // dapp-kit bundles a slightly older @mysten/sui Transaction type
     const full = await suiClient.waitForTransaction({ digest: signed.digest, options: { showObjectChanges: true } });
     const created = (full.objectChanges || []).find((c: any) => c.type === "created" && String(c.objectType).includes("::insurance::Policy<")) as any;
@@ -147,7 +152,6 @@ export default function App() {
     try {
       let hire: Awaited<ReturnType<typeof signHire>> | undefined;
       if (account && health) {
-        setTermLines((l) => [...l, "HIRE  approve the payment in your wallet…"]);
         const h = await signHire();
         hire = h;
         setTermLines((l) => [...l, `  ✓ paid from your wallet · policy ${h.policyId.slice(0, 10)}…`]);
