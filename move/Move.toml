@@ -2,6 +2,7 @@
 name = "vouch"
 edition = "2024.beta"
 version = "0.0.1"
+published-at = "0x9a346250e43b40729748c2819fe6ee1497f9addac1584293b24c7ac05172fbb6"
 
 [dependencies]
 # Sui framework + MoveStdlib are auto-added by the CLI, matched to the installed

@@ -54,7 +54,7 @@ export interface MarketView {
 }
 
 export const api = {
-  health: () => j<{ ok: boolean; llm: boolean; provider: string; model: string | null; wallet: string; packageId: string; stable: string; reservePool: string; treasury: string; backend: string }>(fetch(`${BASE}/api/health`)),
+  health: () => j<{ ok: boolean; llm: boolean; provider: string; model: string | null; wallet: string; packageId: string; stable: string; reservePool: string; treasury: string; backend: string; hirePackage: string }>(fetch(`${BASE}/api/health`)),
   faucet: (address: string) => j<{ digest: string; usdc: number; sui: number }>(fetch(`${BASE}/api/faucet`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ address }) })),
   agents: () => j<ApiAgent[]>(fetch(`${BASE}/api/agents`)),
   market: (tc: string) => j<MarketView>(fetch(`${BASE}/api/market/${tc}`)),

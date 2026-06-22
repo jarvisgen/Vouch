@@ -88,6 +88,40 @@ module vouch::insurance {
         });
     }
 
+    /// Single-call hire (the USER signs this): pay the whole fee in one coin and let the
+    /// contract split it — platform fee → `treasury`, premium → reserve (creating the
+    /// Policy with `holder = caller`, so refunds return to them), and the remaining agent
+    /// fee → `escrow` (held until the verdict). One named call instead of raw transfers,
+    /// so wallets show "vouch::insurance::hire" rather than opaque ownership transfers.
+    public fun hire<T>(
+        reserve: &mut ReservePool<T>,
+        mut payment: Coin<T>,
+        agent_id: ID,
+        task_class: vector<u8>,
+        protocol_fee: u64,
+        premium: u64,
+        coverage: u64,
+        treasury: address,
+        escrow: address,
+        ctx: &mut TxContext,
+    ) {
+        if (protocol_fee > 0) {
+            transfer::public_transfer(coin::split(&mut payment, protocol_fee, ctx), treasury);
+        };
+        let prem = coin::split(&mut payment, premium, ctx);
+        let premium_paid = coin::value(&prem);
+        balance::join(&mut reserve.funds, coin::into_balance(prem));
+        let id = object::new(ctx);
+        let policy_id = object::uid_to_inner(&id);
+        let holder = ctx.sender();
+        event::emit(PolicyBought { policy_id, holder, agent_id, coverage, premium: premium_paid });
+        transfer::share_object(Policy<T> {
+            id, holder, agent_id, task_class, coverage, premium_paid, status: ACTIVE,
+        });
+        // whatever remains is the agent fee — escrow it with the protocol until resolve
+        transfer::public_transfer(payment, escrow);
+    }
+
     // ---- package-internal settlement (called by vouch::resolver) ----
 
     /// FAIL branch: pay `coverage` out of the reserve; returns the coin to route to the holder.

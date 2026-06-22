@@ -7,7 +7,7 @@ import GuaranteeToggle from "./components/GuaranteeToggle";
 import { premiumUsdc } from "./mock/data";
 import { api, ApiAgent, MarketView, RunResult, TaskMeta } from "./api";
 
-type Health = { llm: boolean; provider: string; wallet: string; packageId: string; stable: string; reservePool: string; treasury: string; backend: string };
+type Health = { llm: boolean; provider: string; wallet: string; packageId: string; stable: string; reservePool: string; treasury: string; backend: string; hirePackage: string };
 
 export default function App() {
   const account = useCurrentAccount();
@@ -92,19 +92,23 @@ export default function App() {
     const agentCut = feeBase - protocolCut;
     const coverage = guarantee ? agentCut : 0n;
     const premium = guarantee ? BigInt(Math.round(Number(coverage) * (1 - selected.reliabilityBps / 10000) * 1.2)) : 0n;
+    const totalBase = protocolCut + premium + agentCut;
     const tx = new Transaction();
     tx.setSender(account.address); // required so coinWithBalance can resolve the wallet's coins
-    tx.transferObjects([coinWithBalance({ type: health.stable, balance: protocolCut })], health.treasury); // platform fee
-    tx.transferObjects([coinWithBalance({ type: health.stable, balance: agentCut })], health.backend); // escrow
+    // ONE named call — the contract splits the fee internally (clean wallet prompt).
     tx.moveCall({
-      target: `${health.packageId}::insurance::buy_policy`,
+      target: `${health.hirePackage}::insurance::hire`,
       typeArguments: [health.stable],
       arguments: [
         tx.object(health.reservePool),
+        coinWithBalance({ type: health.stable, balance: totalBase }),
         tx.pure.address(selected.id),
         tx.pure.vector("u8", Array.from(new TextEncoder().encode(taskClass))),
+        tx.pure.u64(protocolCut),
+        tx.pure.u64(premium),
         tx.pure.u64(coverage),
-        coinWithBalance({ type: health.stable, balance: premium }),
+        tx.pure.address(health.treasury),
+        tx.pure.address(health.backend), // escrow
       ],
     });
     const total = Number(protocolCut + agentCut + premium) / 1e6;

@@ -52,6 +52,7 @@ app.get("/api/health", (_req, res) =>
     reservePool: d.reservePoolId,
     treasury: TREASURY,
     backend: ME,
+    hirePackage: (d as any).upgradedPackageId || d.packageId, // call target for insurance::hire
   }),
 );
 
