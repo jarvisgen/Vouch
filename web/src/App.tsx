@@ -193,7 +193,7 @@ export default function App() {
           )}
           {account && (
             <button onClick={fund} disabled={funding} className="rounded-lg border border-slate-700 px-3 py-1.5 text-sm text-slate-200 hover:border-emerald-500 hover:text-emerald-300 disabled:opacity-50">
-              {funding ? "Funding…" : "Fund wallet"}
+              {funding ? "Funding…" : "Fund testnet wallet"}
             </button>
           )}
           <ConnectButton />
