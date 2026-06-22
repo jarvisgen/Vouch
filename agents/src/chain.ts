@@ -193,6 +193,26 @@ export async function hire(agentId: string, withGuarantee: boolean, feeUsdc = 5)
   };
 }
 
+/** Faucet: mint mock USDC + send a little SUI (gas) to a user's connected wallet so they
+ *  can sign & pay for hires themselves. Backend holds the mock-USDC treasury cap. */
+export async function fundWallet(address: string, usdc = 100, sui = 0.1) {
+  const tx = new Transaction();
+  tx.moveCall({
+    target: `${PKG}::mock_usdc::faucet`,
+    arguments: [tx.object(d.stablecoin.treasuryCapId), tx.pure.u64(BigInt(Math.round(usdc * 1e6))), tx.pure.address(address)],
+  });
+  const [gas] = tx.splitCoins(tx.gas, [tx.pure.u64(BigInt(Math.round(sui * 1e9)))]);
+  tx.transferObjects([gas], tx.pure.address(address));
+  const res = await exec(tx, "admin", `fund ${address.slice(0, 8)}…`);
+  return { digest: res.digest, usdc, sui };
+}
+
+/** Record revenue for a hire the USER signed client-side (backend didn't collect it). */
+export function recordHireRevenue(protocolFeeUsdc: number, premiumUsdc: number) {
+  revenue.feesUsdc += protocolFeeUsdc || 0;
+  revenue.premiumsUsdc += premiumUsdc || 0;
+}
+
 /** PTB #2: auditor settles the job. Settles the escrowed agent fee (PASS → agent;
  *  FAIL → refunded), plus the guarantee (coverage/slash) and reliability update. */
 export async function resolve(
@@ -204,6 +224,7 @@ export async function resolve(
   ownerAddr: string,
   agentNetUsdc: number,
   withGuarantee: boolean,
+  hirerAddr: string = ME, // who paid (user wallet, or backend in custodial mode)
 ) {
   const tx = new Transaction();
   tx.moveCall({
@@ -231,7 +252,7 @@ export async function resolve(
       // reserve; the escrowed fee funds that reserve so protocol capital isn't spent.
       tx.moveCall({ target: `${PKG}::insurance::deposit`, typeArguments: [STABLE], arguments: [tx.object(d.reservePoolId), feeCoin] });
     } else {
-      tx.transferObjects([feeCoin], tx.pure.address(ME)); // FAIL, no guarantee: refund the user directly
+      tx.transferObjects([feeCoin], tx.pure.address(hirerAddr)); // FAIL, no guarantee: refund the hirer
     }
   }
   const res = await exec(tx, "resolve", "settle job");

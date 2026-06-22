@@ -32,7 +32,7 @@ export interface ApiAgent {
 }
 
 export interface RunResult {
-  hire: { tx: string; feeUsdc: number; protocolFeeUsdc: number; agentNetUsdc: number; premiumUsdc: number; coverageUsdc: number; reliabilityBps: number };
+  hire: { tx: string; feeUsdc: number; protocolFeeUsdc: number; agentNetUsdc: number; premiumUsdc: number; coverageUsdc: number; reliabilityBps: number; paidBy?: "user" | "custodial" };
   worker: { mode: "claude" | "deterministic"; result: any; trace: string };
   verdict: { pass: boolean; reason: string; recomputed: any };
   evidence: { blobId: string; link: string | null; walrusOk: boolean };
@@ -54,7 +54,8 @@ export interface MarketView {
 }
 
 export const api = {
-  health: () => j<{ ok: boolean; llm: boolean; provider: string; model: string | null; wallet: string; packageId: string }>(fetch(`${BASE}/api/health`)),
+  health: () => j<{ ok: boolean; llm: boolean; provider: string; model: string | null; wallet: string; packageId: string; stable: string; reservePool: string; treasury: string; backend: string }>(fetch(`${BASE}/api/health`)),
+  faucet: (address: string) => j<{ digest: string; usdc: number; sui: number }>(fetch(`${BASE}/api/faucet`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ address }) })),
   agents: () => j<ApiAgent[]>(fetch(`${BASE}/api/agents`)),
   market: (tc: string) => j<MarketView>(fetch(`${BASE}/api/market/${tc}`)),
   samples: (tc: string) => j<{ clean: string; tricky: string }>(fetch(`${BASE}/api/samples/${tc}`)),
@@ -75,7 +76,10 @@ export const api = {
 
 // Streamed run: reads SSE lines from /api/run, calling onLog per step, resolving with the result.
 async function runStream(
-  body: { agentId: string; input: string; withGuarantee: boolean },
+  body: {
+    agentId: string; input: string; withGuarantee: boolean;
+    hire?: { policyId: string; agentNetUsdc: number; protocolFeeUsdc: number; premiumUsdc: number; coverageUsdc: number; userAddress: string };
+  },
   onLog: (line: string) => void,
 ): Promise<RunResult> {
   const res = await fetch(`${BASE}/api/run`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });

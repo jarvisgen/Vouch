@@ -6,7 +6,7 @@ import { createHash } from "node:crypto";
 import { env, deployment as d, hasLLM, llmProvider, llmModel } from "./config.js";
 import { runWorker, runAuditor, normalizeStrict, resolveInput, SAMPLES, TASK_META, type TaskClass } from "./tasks.js";
 import { putBundle, evidenceLink } from "./walrus.js";
-import { hire, resolve, leaderboard, readAgentById, createAgent, performanceReliability, marketView, repricePool, tradeOnPool, refuel, getActivity, getRevenue, ME } from "./chain.js";
+import { hire, resolve, leaderboard, readAgentById, createAgent, performanceReliability, marketView, repricePool, tradeOnPool, refuel, getActivity, getRevenue, fundWallet, recordHireRevenue, TREASURY, ME } from "./chain.js";
 import { getConfig, setConfig, MODEL_CATALOG } from "./models.js";
 
 // Only our own internal worker may be called — no user-supplied URLs reach fetch() (SSRF guard).
@@ -47,8 +47,21 @@ app.get("/api/health", (_req, res) =>
     wallet: ME,
     packageId: d.packageId,
     network: "testnet",
+    // config the frontend needs to build a user-signed hire transaction
+    stable: d.stablecoin.type,
+    reservePool: d.reservePoolId,
+    treasury: TREASURY,
+    backend: ME,
   }),
 );
+
+// Faucet: fund a connected wallet with mock USDC + a little SUI so the user can pay for hires.
+app.post("/api/faucet", async (req, res) => {
+  const address = String((req.body as { address?: string }).address || "");
+  if (!/^0x[0-9a-fA-F]{4,66}$/.test(address)) return res.status(400).json({ error: "valid 0x address required" });
+  try { res.json(await fundWallet(address)); }
+  catch (e) { res.status(500).json({ error: String(e) }); }
+});
 
 app.get("/api/agents", async (_req, res) => {
   try {
@@ -179,7 +192,11 @@ app.post("/api/resolve", async (req, res) => {
 
 // Streamed run: emits a terminal line per on-chain step (SSE), then a final result.
 app.post("/api/run", async (req, res) => {
-  const { agentId, input: rawInput, withGuarantee } = req.body as { agentId: string; input: string; withGuarantee: boolean };
+  const { agentId, input: rawInput, withGuarantee, hire: clientHire } = req.body as {
+    agentId: string; input: string; withGuarantee: boolean;
+    // present when the user signed & paid the hire from their own wallet (client-side)
+    hire?: { policyId: string; agentNetUsdc: number; protocolFeeUsdc: number; premiumUsdc: number; coverageUsdc: number; userAddress: string };
+  };
   res.setHeader("Content-Type", "text/event-stream");
   res.setHeader("Cache-Control", "no-cache");
   res.setHeader("Connection", "keep-alive");
@@ -199,10 +216,23 @@ app.post("/api/run", async (req, res) => {
     const input = normalizeStrict(taskClass, rawInput);
     log(`PARSE target → ${input.slice(0, 64)}${input.length > 64 ? "…" : ""}`);
 
-    // 1) hire (PTB #1)
-    log(`HIRE  $${fee}: $${(fee * 0.1).toFixed(2)} platform fee, $${(fee * 0.9).toFixed(2)} fee ESCROWED (released to agent on PASS, refunded on FAIL)${withGuarantee ? `, + premium → reserve` : ""}`);
-    const h = await hire(agentId, !!withGuarantee, fee);
-    log(`  ✓ ${withGuarantee ? `guarantee ($${h.coverageUsdc} cover, $${h.premiumUsdc} premium)` : "no guarantee"} · escrow $${h.agentNetUsdc} held · tx ${h.digest.slice(0, 8)}…`);
+    // 1) hire (PTB #1) — user-signed (paid from their wallet) or custodial (backend pays)
+    let h: { policyId?: string; agentNetUsdc: number; premiumUsdc: number; coverageUsdc: number };
+    let hireDigest = "";
+    const hirer = clientHire?.userAddress || ME;
+    if (clientHire?.policyId) {
+      log(`HIRE  $${fee} paid from user wallet ${hirer.slice(0, 8)}… — $${clientHire.protocolFeeUsdc} platform fee, $${clientHire.agentNetUsdc} escrowed${withGuarantee ? `, + $${clientHire.premiumUsdc} premium → reserve` : ""}`);
+      recordHireRevenue(clientHire.protocolFeeUsdc, clientHire.premiumUsdc);
+      h = { policyId: clientHire.policyId, agentNetUsdc: clientHire.agentNetUsdc, premiumUsdc: clientHire.premiumUsdc, coverageUsdc: clientHire.coverageUsdc };
+      log(`  ✓ policy ${clientHire.policyId.slice(0, 10)}… created by user · escrow $${clientHire.agentNetUsdc} held`);
+    } else {
+      log(`HIRE  $${fee} (custodial demo wallet): $${(fee * 0.1).toFixed(2)} platform fee, $${(fee * 0.9).toFixed(2)} escrowed${withGuarantee ? `, + premium → reserve` : ""}`);
+      const hr = await hire(agentId, !!withGuarantee, fee);
+      hireDigest = hr.digest;
+      h = { policyId: hr.policyId, agentNetUsdc: hr.agentNetUsdc, premiumUsdc: hr.premiumUsdc, coverageUsdc: hr.coverageUsdc };
+      log(`  ✓ ${withGuarantee ? `guarantee ($${hr.coverageUsdc} cover, $${hr.premiumUsdc} premium)` : "no guarantee"} · escrow $${hr.agentNetUsdc} held · tx ${hr.digest.slice(0, 8)}…`);
+    }
+    if (!h.policyId) throw new Error("hire produced no policy");
 
     // 2) worker
     log(`WORK  ${cfg.endpoint ? "calling external agent endpoint" : "running worker " + (cfg.model ?? "")} on ${taskClass}…`);
@@ -227,7 +257,7 @@ app.post("/api/run", async (req, res) => {
     // 5) resolve (PTB #2)
     const newRel = performanceReliability(before.jobs, before.fails, verdict.pass);
     log(`RESOLVE auditor settling on-chain · ${verdict.pass ? "release fee to agent" : "REFUND user, agent gets nothing, slash bond"}…`);
-    const r = await resolve(agentId, h.policyId, verdict.pass, blobId, newRel, before.owner, h.agentNetUsdc, !!withGuarantee);
+    const r = await resolve(agentId, h.policyId, verdict.pass, blobId, newRel, before.owner, h.agentNetUsdc, !!withGuarantee, hirer);
     if (verdict.pass) log(`  ✓ fee $${h.agentNetUsdc} released to agent · premium $${h.premiumUsdc} kept · tx ${r.digest.slice(0, 8)}…`);
     else log(`  ✓ your $${h.agentNetUsdc} fee refunded · agent earned $0 · bond slashed $${r.slashedUsdc} · tx ${r.digest.slice(0, 8)}…`);
     const after = await readAgentById(agentId);
@@ -242,7 +272,16 @@ app.post("/api/run", async (req, res) => {
     send({
       type: "done",
       result: {
-        hire: { ...h, tx: explorer(h.digest) },
+        hire: {
+          feeUsdc: fee,
+          protocolFeeUsdc: clientHire?.protocolFeeUsdc ?? +(fee * 0.1).toFixed(4),
+          agentNetUsdc: h.agentNetUsdc,
+          premiumUsdc: h.premiumUsdc,
+          coverageUsdc: h.coverageUsdc,
+          reliabilityBps: before.reliabilityBps,
+          paidBy: clientHire ? "user" : "custodial",
+          tx: hireDigest ? explorer(hireDigest) : "",
+        },
         worker,
         verdict,
         evidence: { blobId, link: walrusOk ? evidenceLink(blobId) : null, walrusOk },

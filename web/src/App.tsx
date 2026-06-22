@@ -1,14 +1,20 @@
 import { useEffect, useRef, useState } from "react";
-import { ConnectButton } from "@mysten/dapp-kit";
+import { ConnectButton, useCurrentAccount, useSignAndExecuteTransaction, useSuiClient } from "@mysten/dapp-kit";
+import { Transaction, coinWithBalance } from "@mysten/sui/transactions";
 import AgentCard from "./components/AgentCard";
 import OrderBook from "./components/OrderBook";
 import GuaranteeToggle from "./components/GuaranteeToggle";
 import { premiumUsdc } from "./mock/data";
 import { api, ApiAgent, MarketView, RunResult, TaskMeta } from "./api";
 
+type Health = { llm: boolean; provider: string; wallet: string; packageId: string; stable: string; reservePool: string; treasury: string; backend: string };
 
 export default function App() {
-  const [health, setHealth] = useState<{ llm: boolean; provider: string; wallet: string; packageId: string } | null>(null);
+  const account = useCurrentAccount();
+  const suiClient = useSuiClient();
+  const { mutateAsync: signTx } = useSignAndExecuteTransaction();
+  const [health, setHealth] = useState<Health | null>(null);
+  const [funding, setFunding] = useState(false);
   const [agents, setAgents] = useState<ApiAgent[]>([]);
   const [selId, setSelId] = useState<string>("");
   const [market, setMarket] = useState<MarketView | null>(null);
@@ -77,6 +83,50 @@ export default function App() {
 
   useEffect(() => { if (termRef.current) termRef.current.scrollTop = termRef.current.scrollHeight; }, [termLines]);
 
+  // Build + sign the hire from the CONNECTED wallet (user pays). Returns the hire payload
+  // for the backend to finish (work → audit → resolve). Throws if the user rejects.
+  async function signHire() {
+    if (!selected || !health || !account) throw new Error("connect a wallet first");
+    const feeBase = BigInt(Math.round((selected.config?.feeUsdc ?? 5) * 1e6));
+    const protocolCut = (feeBase * 1000n) / 10000n;
+    const agentCut = feeBase - protocolCut;
+    const coverage = guarantee ? agentCut : 0n;
+    const premium = guarantee ? BigInt(Math.round(Number(coverage) * (1 - selected.reliabilityBps / 10000) * 1.2)) : 0n;
+    const tx = new Transaction();
+    tx.transferObjects([coinWithBalance({ type: health.stable, balance: protocolCut })], health.treasury); // platform fee
+    tx.transferObjects([coinWithBalance({ type: health.stable, balance: agentCut })], health.backend); // escrow
+    tx.moveCall({
+      target: `${health.packageId}::insurance::buy_policy`,
+      typeArguments: [health.stable],
+      arguments: [
+        tx.object(health.reservePool),
+        tx.pure.address(selected.id),
+        tx.pure.vector("u8", Array.from(new TextEncoder().encode(taskClass))),
+        tx.pure.u64(coverage),
+        coinWithBalance({ type: health.stable, balance: premium }),
+      ],
+    });
+    const signed = await signTx({ transaction: tx as any }); // dapp-kit bundles a slightly older @mysten/sui Transaction type
+    const full = await suiClient.waitForTransaction({ digest: signed.digest, options: { showObjectChanges: true } });
+    const created = (full.objectChanges || []).find((c: any) => c.type === "created" && String(c.objectType).includes("::insurance::Policy<")) as any;
+    if (!created?.objectId) throw new Error("hire didn't create a policy — is your wallet funded?");
+    return {
+      policyId: created.objectId as string,
+      agentNetUsdc: Number(agentCut) / 1e6,
+      protocolFeeUsdc: Number(protocolCut) / 1e6,
+      premiumUsdc: Number(premium) / 1e6,
+      coverageUsdc: Number(coverage) / 1e6,
+      userAddress: account.address,
+    };
+  }
+
+  async function fund() {
+    if (!account) return;
+    setFunding(true); setErr(null);
+    try { const f = await api.faucet(account.address); setTermLines((l) => [...l, `✓ funded your wallet with ${f.usdc} mUSDC + ${f.sui} SUI`]); }
+    catch (e) { setErr(String(e)); } finally { setFunding(false); }
+  }
+
   async function run() {
     if (!selected) return;
     setErr(null); setPending(null);
@@ -94,7 +144,14 @@ export default function App() {
     setRunning(true); setErr(null); setResult(null);
     setTermLines((l) => [...l, `$ run · ${selected.name} · ${meta(taskClass)?.label}`]);
     try {
-      const r = await api.runStream({ agentId: selected.id, input: resolvedInput, withGuarantee: guarantee }, (line) => setTermLines((l) => [...l.slice(-300), line]));
+      let hire: Awaited<ReturnType<typeof signHire>> | undefined;
+      if (account && health) {
+        setTermLines((l) => [...l, "HIRE  approve the payment in your wallet…"]);
+        const h = await signHire();
+        hire = h;
+        setTermLines((l) => [...l, `  ✓ paid from your wallet · policy ${h.policyId.slice(0, 10)}…`]);
+      }
+      const r = await api.runStream({ agentId: selected.id, input: resolvedInput, withGuarantee: guarantee, hire }, (line) => setTermLines((l) => [...l.slice(-300), line]));
       setResult(r);
       await refreshAgents();
       await refreshMarket(taskClass);
@@ -124,6 +181,11 @@ export default function App() {
               <div className="text-sm font-bold tabular-nums text-slate-100">${rev.totalUsdc.toFixed(2)}</div>
               <div className="text-[9px] uppercase tracking-wide text-slate-500">protocol revenue</div>
             </div>
+          )}
+          {account && (
+            <button onClick={fund} disabled={funding} className="rounded-lg border border-slate-700 px-3 py-1.5 text-sm text-slate-200 hover:border-emerald-500 hover:text-emerald-300 disabled:opacity-50">
+              {funding ? "Funding…" : "Fund wallet"}
+            </button>
           )}
           <ConnectButton />
         </div>
